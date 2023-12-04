@@ -20,9 +20,9 @@ function convertToObjects(array) {
 }
 // checks the subset game if it has the correct number of cubes
 function checkValues(object) {
-	let blue,
-		red,
-		green = false;
+	let blue = false;
+	let red = false;
+	let green = false;
 
 	if (!object.hasOwnProperty('blue')) {
 		blue = true;
@@ -41,7 +41,7 @@ function checkValues(object) {
 	} else if (object.green <= 13) {
 		green = true;
 	}
-
+	// console.log(blue, red, green);
 	return blue && red && green;
 }
 
@@ -50,19 +50,27 @@ const game = payload.map((item) => item.replace(/^Game \d+: /, ''));
 const splitAll = game.map((item) => item.split('; '));
 const convertAllToObjects = splitAll.map((item) => convertToObjects(item));
 
-// console.log(checkValues(convertAllToObjects[0][0]));
-console.log(convertAllToObjects[89]);
-console.log(checkValues(convertAllToObjects[89][0]));
+let count = 0;
+const resultArray = [];
 
-// for (let i = 0; i < convertAllToObjects.length; i++) {
-// 	for (let j = 0; j < convertAllToObjects[i].length; j++) {
-// 		console.log(checkValues(convertAllToObjects[i][j]));
-// 	}
-// }
+for (let index = 0; index < convertAllToObjects.length; index++) {
+	const gameResult = [];
+	for (
+		let subIndex = 0;
+		subIndex < convertAllToObjects[index].length;
+		subIndex++
+	) {
+		const isValid = checkValues(convertAllToObjects[index][subIndex]);
+		gameResult.push(isValid);
+	}
+	resultArray.push(gameResult);
+}
 
-// console.log('PAYLOAD');
-// console.log(payload);
+let buffer = [];
 
-// for (let index = 0; index < subsetToObject.length; index++) {
-// 	console.log(checkValues(subsetToObject[index]));
-// }
+for (let i = 0; i < resultArray.length; i++) {
+	if (resultArray[i].every((value) => value === true)) {
+		buffer.push(i + 1);
+	}
+}
+console.log(buffer.reduce((acc, cur) => acc + cur, 0));
