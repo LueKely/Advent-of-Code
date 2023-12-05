@@ -18,7 +18,7 @@ function convertToObjects(array) {
 		return cubeCounts;
 	});
 }
-// checks the subset game if it has the correct number of cubes
+
 function checkValues(object) {
 	let blue = false;
 	let red = false;
@@ -53,6 +53,7 @@ const convertAllToObjects = splitAll.map((item) => convertToObjects(item));
 let count = 0;
 const resultArray = [];
 
+// this creates an array of arrays of booleans based on the checkValues function
 for (let index = 0; index < convertAllToObjects.length; index++) {
 	const gameResult = [];
 	for (
@@ -68,6 +69,8 @@ for (let index = 0; index < convertAllToObjects.length; index++) {
 
 let buffer = [];
 
+// this checks if all the values in the array are true
+// if they are, it pushes the index + 1 to the buffer array
 for (let i = 0; i < resultArray.length; i++) {
 	if (resultArray[i].every((value) => value === true)) {
 		buffer.push(i + 1);
