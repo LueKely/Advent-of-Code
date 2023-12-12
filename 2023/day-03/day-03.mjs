@@ -19,8 +19,8 @@ function readLine(line) {
 // todo please work on this return only one array nalang thanks lue
 function getPostionsHorizontal(symbolPos) {
 	return {
-		topBottom: [symbolPos - 3, symbolPos + 3],
-		leftRight: [symbolPos - 3, symbolPos + 3],
+		topBottom: [symbolPos - 3, symbolPos + 4],
+		leftRight: [symbolPos - 3, symbolPos + 4],
 	};
 }
 
@@ -29,26 +29,40 @@ function lineCutter(position, line) {
 	return line.slice(position[0], position[1]);
 }
 
+//   .0000000.
+//   .000%000.
+//   .0000000.
+
 // rework line parser
 function lineParser(line) {
 	const stack = [];
-	const regex = /\d+/g;
+
+	const regex = /[^0-9a-zA-Z.]/g;
+	const regexNumber = /^\d+$/;
+	const regexMiddleDot = /\d\.\d/;
 	let part = '';
-
-	for (let index = 0; index < line.length; index++) {
-		const next = line[index + 1];
-		const matches = line[index].match(regex);
-
-		if (matches) {
-			part += line[index];
-
-			if (index !== line.length - 1) {
-				if (!next.match(regex)) {
-					stack.push(part);
-					part = '';
-				}
+	// this if is for the middle
+	if (regex.test(line[3])) {
+		const left = line.slice(0, 3);
+		const right = line.slice(4, 7);
+		// left
+		if (regexMiddleDot.test(left)) {
+			stack.push(left.replace(/\./g, '')[1]);
+		} else {
+			if (line[2] !== '.') {
+				stack.push(left.replace(/\./g, ''));
 			}
 		}
+		// right
+		if (regexMiddleDot.test(right)) {
+			stack.push(right.replace(/\./g, '')[0]);
+		} else {
+			if (line[4] !== '.') {
+				stack.push(right.replace(/\./g, ''));
+			}
+		}
+	} else {
+		console.log('bar');
 	}
 
 	return stack;
@@ -79,6 +93,6 @@ console.log('bottom: ' + bottomResult);
 // left
 console.log('left and right ' + leftAndRightResult);
 // right
-
+console.log(lineParser(leftAndRightResult));
 // console.log(lineParser(segment));
 // readLine(segment);
