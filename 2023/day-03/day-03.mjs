@@ -1,10 +1,7 @@
+import { parse } from 'path';
 import { readFile } from '../utils/readTextFile.mjs';
 
 const payload = readFile('./day-03.txt');
-
-//   .0000000.
-//   .000%000.
-//   .0000000.
 
 function findSymbol(letter) {
 	const regex = /[^a-zA-Z0-9.]/g;
@@ -26,16 +23,13 @@ function lineCutter(position, line) {
 	return line.slice(position[0], position[1]);
 }
 
-//   .0000000.
-//   .000%000.
-//   .0000000.
-
 // rework line parser
 function lineParser(line) {
 	const stack = [];
 	const regex = /[^0-9a-zA-Z.]/g;
 	const regexNumber = /^\d+$/;
 	const regexMiddleDot = /\d\.\d/;
+	let build = '';
 	// this if is for the middle arrat
 	if (regex.test(line[3])) {
 		const left = line.slice(0, 3);
@@ -57,7 +51,6 @@ function lineParser(line) {
 			}
 		}
 	} else {
-		let build = '';
 		// if middle starts with a number
 		if (regexNumber.test(line[3])) {
 			// if 0011100
@@ -90,42 +83,76 @@ function lineParser(line) {
 			} else {
 				stack.push(line[3]);
 			}
+		} else if (line[3] === '.') {
+			let left = line.slice(0, 3);
+			let right = line.slice(4, 7);
+			// left
+			if (regexMiddleDot.test(left)) {
+				stack.push(left.replace(/\./g, '')[1]);
+			} else {
+				if (line[2] !== '.') {
+					stack.push(left.replace(/\./g, ''));
+				}
+			}
+			// right
+			if (regexMiddleDot.test(right)) {
+				stack.push(right.replace(/\./g, '')[0]);
+			} else {
+				if (line[4] !== '.') {
+					stack.push(right.replace(/\./g, ''));
+				}
+			}
 		}
 	}
 
-	return stack;
+	const final = stack.map((item) => {
+		if (item != undefined) {
+			return parseInt(item);
+		}
+	});
+
+	return final;
 }
 
-const topSegment = payload[107];
-const segment = payload[108];
-const bottomSegment = payload[109];
+const poop = [];
 
-const normalizedPositions = getPostionsHorizontal(12);
+for (let index = 0; index < payload.length; index++) {
+	for (let kindex = 0; kindex < payload[index].length; kindex++) {
+		const element = payload[index][kindex];
+		if (findSymbol(element)) {
+			const normalizedPositions = getPostionsHorizontal(kindex);
+			const topResult = lineCutter(normalizedPositions, payload[index - 1]);
+			const bottomResult = lineCutter(normalizedPositions, payload[index + 1]);
+			const leftAndRightResult = lineCutter(
+				normalizedPositions,
+				payload[index]
+			);
 
-// control group
-console.log(bottomSegment);
-console.log(segment);
-console.log(topSegment);
-// console.log(segment[39]);
-console.log('normalized position based on the current symbol position');
-console.log(normalizedPositions);
+			if (lineParser(topResult).length > 0) {
+				lineParser(topResult).map((item) => {
+					poop.push(item);
+				});
+			}
+			if (lineParser(leftAndRightResult).length > 0) {
+				lineParser(leftAndRightResult).map((item) => {
+					poop.push(item);
+				});
+			}
+			if (lineParser(bottomResult).length > 0) {
+				lineParser(bottomResult).map((item) => {
+					poop.push(item);
+				});
+			}
+		}
+	}
+}
 
-const topResult = lineCutter(normalizedPositions, topSegment);
-const bottomResult = lineCutter(normalizedPositions, bottomSegment);
-const leftAndRightResult = lineCutter(normalizedPositions, segment);
+console.log(poop);
 
-// top
-console.log('top:    ' + topResult);
-// middle
-console.log('middle: ' + leftAndRightResult);
-// bottom
-console.log('bottom: ' + bottomResult);
+let final = 0;
 
-console.log('middle:');
-console.log(lineParser(leftAndRightResult));
-console.log('top:');
-console.log(lineParser(topResult));
-console.log('bottom');
-console.log(lineParser(bottomResult));
-// console.log(lineParser(segment));
-// readLine(segment);
+poop.forEach((element) => {
+	final += element;
+});
+
+console.log(final);
